@@ -20,22 +20,21 @@ export default function GestionHorarios({ usuario }) {
 
   // Cargar horarios del usuario
   useEffect(() => {
-    if (usuario?.id) {
-      cargarHorarios()
+    const fetchHorarios = async () => {
+      if (usuario?.id) {
+        setCargando(true)
+        const { data, error } = await obtenerHorariosUsuario(usuario.id)
+        
+        if (error) {
+          toast.error('Error al cargar horarios: ' + error)
+        } else {
+          setHorarios(data || [])
+        }
+        setCargando(false)
+      }
     }
+    fetchHorarios()
   }, [usuario])
-
-  const cargarHorarios = async () => {
-    setCargando(true)
-    const { data, error } = await obtenerHorariosUsuario(usuario.id)
-    
-    if (error) {
-      toast.error('Error al cargar horarios: ' + error)
-    } else {
-      setHorarios(data || [])
-    }
-    setCargando(false)
-  }
 
   const agregarHorario = async () => {
     if (!nuevoHorario.hora_ingreso || !nuevoHorario.hora_salida) {

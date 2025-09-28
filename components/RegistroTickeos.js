@@ -21,22 +21,21 @@ export default function RegistroTickeos({ usuario }) {
   const [fechaFiltro, setFechaFiltro] = useState(new Date().toISOString().split('T')[0])
 
   useEffect(() => {
-    if (usuario?.id) {
-      cargarTickeos()
+    const fetchTickeos = async () => {
+      if (usuario?.id) {
+        setCargando(true)
+        const { data, error } = await obtenerTickeosUsuario(usuario.id, fechaFiltro)
+        
+        if (error) {
+          toast.error('Error al cargar tickeos: ' + error)
+        } else {
+          setTickeos(data || [])
+        }
+        setCargando(false)
+      }
     }
+    fetchTickeos()
   }, [usuario, fechaFiltro])
-
-  const cargarTickeos = async () => {
-    setCargando(true)
-    const { data, error } = await obtenerTickeosUsuario(usuario.id, fechaFiltro)
-    
-    if (error) {
-      toast.error('Error al cargar tickeos: ' + error)
-    } else {
-      setTickeos(data || [])
-    }
-    setCargando(false)
-  }
 
   const registrarTickeo = async () => {
     if (!nuevoTickeo.fecha || !nuevoTickeo.hora) {
