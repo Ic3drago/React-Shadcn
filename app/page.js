@@ -8,7 +8,7 @@ import TablaUsuarios from '@/components/TablaUsuarios';
 import FormularioUsuario from '@/components/FormularioUsuario';
 import DialogoConfirmacion from '@/components/DialogoConfirmacion';
 import GestionHorarios from '@/components/GestionHorarios';
-import RegistroTickeos from '@/components/RegistroTickeos';
+import DynamicRegistroTickeos from '@/components/DynamicRegistroTickeos';
 import GestionCargos from '@/components/GestionCargos';
 import {
   obtenerUsuarios, 
@@ -527,7 +527,7 @@ export default function HomePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <RegistroTickeos usuario={usuarioSeleccionado} />
+                <DynamicRegistroTickeos usuario={usuarioSeleccionado} />
               </CardContent>
             </Card>
           </div>

@@ -20,22 +20,30 @@ export default function RegistroTickeos({ usuario }) {
   const [cargando, setCargando] = useState(false)
   const [fechaFiltro, setFechaFiltro] = useState(new Date().toISOString().split('T')[0])
 
+  // Optimizar el useEffect para cargar tickeos
   useEffect(() => {
-    const fetchTickeos = async () => {
-      if (usuario?.id) {
-        setCargando(true)
-        const { data, error } = await obtenerTickeosUsuario(usuario.id, fechaFiltro)
+    const cargarTickeos = async () => {
+      if (!usuario?.id) return;
+      
+      try {
+        setCargando(true);
+        const { data, error } = await obtenerTickeosUsuario(usuario.id, fechaFiltro);
         
         if (error) {
-          toast.error('Error al cargar tickeos: ' + error)
-        } else {
-          setTickeos(data || [])
+          toast.error('Error al cargar tickeos: ' + error);
+          return;
         }
-        setCargando(false)
+        
+        setTickeos(data || []);
+      } catch (error) {
+        toast.error('Error inesperado al cargar tickeos');
+      } finally {
+        setCargando(false);
       }
-    }
-    fetchTickeos()
-  }, [usuario, fechaFiltro])
+    };
+
+    cargarTickeos();
+  }, [usuario?.id, fechaFiltro]); // Dependencias explícitas
 
   const registrarTickeo = async () => {
     if (!nuevoTickeo.fecha || !nuevoTickeo.hora) {
