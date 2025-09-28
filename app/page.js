@@ -55,23 +55,38 @@ export default function HomePage() {
   // Efectos especiales
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
+  // Estado para verificar si estamos del lado del cliente
+  const [isClientSide, setIsClientSide] = useState(false);
+
   // Efecto para seguir el mouse
   useEffect(() => {
     const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      // Throttle para mejor rendimiento
+      requestAnimationFrame(() => {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+      });
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   // Efecto para aplicar dark mode
   useEffect(() => {
-    // Verificar preferencia guardada
+    // Mover la lógica del tema al cliente
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
     
-    setDarkMode(shouldBeDark);
+    setDarkMode(savedTheme === 'dark' || (!savedTheme && mediaQuery.matches));
+    
+    const handleChange = (e) => {
+      if (!localStorage.getItem('theme')) {
+        setDarkMode(e.matches);
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   useEffect(() => {
@@ -87,6 +102,10 @@ export default function HomePage() {
   // Cargar usuarios y cargos al montar el componente
   useEffect(() => {
     cargarDatosIniciales();
+  }, []);
+
+  useEffect(() => {
+    setIsClientSide(true);
   }, []);
 
   const cargarDatosIniciales = async () => {
@@ -604,6 +623,10 @@ export default function HomePage() {
         );
     }
   };
+
+  if (!isClientSide) {
+    return null; // O un loading skeleton
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100 dark:from-slate-950 dark:via-blue-950/50 dark:to-indigo-950 relative overflow-hidden">
